@@ -1,0 +1,15 @@
+dependencies:
+  idf:
+    component_hash: null
+    source:
+      type: idf
+    version: 5.2.0
+  nimble_peripheral_utils:
+    component_hash: null
+    source:
+      path: F:\Users\lenovo\esp\v5.2\esp-idf\examples\bluetooth\nimble\common\nimble_peripheral_utils
+      type: local
+    version: '*'
+manifest_hash: a96c0362884bd3907e9d29d89c41810dd80bc7a5d99729abb694b36e7b15fa8d
+target: esp32
+version: 1.0.0
