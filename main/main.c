@@ -20,7 +20,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "esp_log.h"
 #include "nvs_flash.h"
 /* BLE */
 #include "nimble/nimble_port.h"
@@ -30,6 +29,9 @@
 #include "console/console.h"
 #include "services/gap/ble_svc_gap.h"
 #include "bluetooth/bleprph.h"
+
+/*mpu6050*/
+#include "mpu6050/motionData.h"
 
 static const char *tag = "NimBLE_BLE_PRPH";
 static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
@@ -410,17 +412,12 @@ void app_main(void)
         ESP_LOGE(tag, "scli_init() failed");
     }
 
-    // for (size_t i = 0; i < 10; i++)
-    // {
-    //     printf("第%d次=====\n", i);
-    //     char ThreadList[512];
-    //     vTaskList(ThreadList);
-    //     printf(ThreadList);
-    //     printf("=====\n");
-    //     char RTList[512];
-    //     vTaskGetRunTimeStats(RTList);
-    //     printf(RTList);
-    //     printf("=====\n");
-    //     vTaskDelay(1000 / portTICK_PERIOD_MS);
-    // }
+    MotionData_Init();
+    for (size_t i = 0; i < 100; i++)
+    {
+        printf("第%d次=====\n", i);
+        MotionData_Display();
+        printf("=====\n");
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
 }
