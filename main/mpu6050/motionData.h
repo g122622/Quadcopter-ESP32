@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-07 23:34:04
+ * Last Modified: 2024-03-11 22:33:06
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -12,24 +12,14 @@
  * ------------------------------------
  */
 
+#ifndef MOTION_DATA_H
+#define MOTION_DATA_H
+
 #include "mpu6050.h"
+#include "../utils/D3D.h"
 
 #define ACCEL_RANGE 2
 #define GYRO_RANGE 250
-
-typedef struct
-{
-    double ax;
-    double ay;
-    double az;
-} AccelData;
-
-typedef struct
-{
-    double gx;
-    double gy;
-    double gz;
-} GyroData;
 
 void MotionData_Init()
 {
@@ -39,12 +29,12 @@ void MotionData_Init()
 /**
  * 单位：g
 */
-AccelData getAccelData()
+D3D getAccelData()
 {
-    AccelData ret = {
-        .ax = MPU6050_Get_16bit_Data(ACCEL_XOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
-        .ay = MPU6050_Get_16bit_Data(ACCEL_YOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
-        .az = MPU6050_Get_16bit_Data(ACCEL_ZOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
+    D3D ret = {
+        .x = MPU6050_Get_16bit_Data(ACCEL_XOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
+        .y = MPU6050_Get_16bit_Data(ACCEL_YOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
+        .z = MPU6050_Get_16bit_Data(ACCEL_ZOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
     };
     return ret;
 }
@@ -52,27 +42,29 @@ AccelData getAccelData()
 /**
  * 单位：度/s
 */
-GyroData getGyroData()
+D3D getGyroData()
 {
-    GyroData ret = {
-        .gx = MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
-        .gy = MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
-        .gz = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
+    D3D ret = {
+        .x = MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
+        .y = MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
+        .z = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
     };
     return ret;
 }
 
 void MotionData_Display()
 {
-    AccelData acc = getAccelData();
+    D3D acc = getAccelData();
     /* 打印 x, y, z 轴加速度 */
-    printf("ACCEL_X: %lf\t", acc.ax);
-    printf("ACCEL_Y: %lf\t", acc.ay);
-    printf("ACCEL_Z: %lf\t", acc.az);
+    printf("ACCEL_X: %lf\t", acc.x);
+    printf("ACCEL_Y: %lf\t", acc.y);
+    printf("ACCEL_Z: %lf\t", acc.z);
 
-    GyroData gyr = getGyroData();
+    D3D gyr = getGyroData();
     /* 打印 x, y, z 轴角速度 */
-    printf("GYRO_X: %lf\t", gyr.gx);
-    printf("GYRO_Y: %lf\t", gyr.gy);
-    printf("GYRO_Z: %lf\t", gyr.gz);
+    printf("GYRO_X: %lf\t", gyr.x);
+    printf("GYRO_Y: %lf\t", gyr.y);
+    printf("GYRO_Z: %lf\t", gyr.z);
 }
+
+#endif

@@ -4,13 +4,16 @@
  * Created Date: 2024-03-06 23:41:26
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-07 22:10:21
+ * Last Modified: 2024-03-11 22:29:52
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
  *
  * ------------------------------------
  */
+
+#ifndef MPU6050_CONNECTION_H
+#define MPU6050_CONNECTION_H
 
 #include <stdio.h>
 #include "driver/i2c.h"
@@ -84,3 +87,5 @@ static esp_err_t i2c_master_init(void)
 
     return i2c_driver_install(i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
 }
+
+#endif

@@ -4,13 +4,16 @@
  * Created Date: 2024-03-07 19:55:56
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-07 22:14:11
+ * Last Modified: 2024-03-11 22:31:44
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
  *
  * ------------------------------------
  */
+
+#ifndef MPU6050_H
+#define MPU6050_H
 
 #include "connection.h"
 #include "esp_log.h"
@@ -94,3 +97,5 @@ void MPU6050_Display(void)
 
     printf("\r\n");
 }
+
+#endif

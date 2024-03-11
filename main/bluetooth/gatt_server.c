@@ -27,8 +27,13 @@
 #include "bleprph.h"
 #include "services/ans/ble_svc_ans.h"
 
+// 服务
 #include "./services/devInfo.h"
 #include "./services/remoteControll.h"
+#include "./services/remoteInfo.h"
+
+// 全局变量
+#include "../globalStates/motionState.h"
 
 /*** Maximum number of characteristics with the notify flag ***/
 #define MAX_NOTIFY 5
@@ -73,6 +78,22 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .access_cb = gatt_remoteControll_svc_access,
                 .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_NOTIFY | BLE_GATT_CHR_F_WRITE_NO_RSP,
                 .val_handle = &gatt_remoteControll_chr_val_handle,
+            },
+            {
+                0, /* No more characteristics in this service. */
+            }},
+    },
+    {
+        /*** 远程信息服务 0x1022 ***/
+        .type = BLE_GATT_SVC_TYPE_PRIMARY,
+        .uuid = &gatt_remoteInfo_svc_uuid.u,
+        .characteristics = (struct ble_gatt_chr_def[]){
+
+            {
+                .uuid = &gatt_remoteInfo_chr_basic_motion_uuid.u,
+                .access_cb = gatt_remoteInfo_svc_access,
+                .flags = BLE_GATT_CHR_F_READ,
+                .val_handle = &gatt_remoteInfo_chr_basic_motion_val_handle,
             },
             {
                 0, /* No more characteristics in this service. */

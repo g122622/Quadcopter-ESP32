@@ -20,20 +20,26 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-/* BLE协议栈 */
+/* 蓝牙协议栈 */
 #include "bluetooth/Bleprph_Init.h"
-/*mpu6050*/
+/* mpu6050 */
 #include "mpu6050/motionData.h"
+/* 各任务 */
+#include "tasks/motionStateUpdate.h"
+
+#define tskHIGH_PRIORITY 10
+
+/* 启动任务 */
+void Tasks_Init()
+{
+    TaskHandle_t motionStateUpdateHandle = NULL;
+    xTaskCreatePinnedToCore(motionStateUpdate, "motionStateUpdate",
+                            4096, NULL, tskHIGH_PRIORITY, motionStateUpdateHandle, 1);
+}
 
 void app_main(void)
 {
     Bleprph_Init();
     MotionData_Init();
-    for (size_t i = 0; i < 100; i++)
-    {
-        printf("第%d次=====\n", i);
-        MotionData_Display();
-        printf("=====\n");
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+    Tasks_Init();
 }
