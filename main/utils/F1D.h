@@ -1,10 +1,10 @@
 /*
- * File: \D1D.h
+ * File: \F1D.h
  * Project: utils
  * Created Date: 2024-03-11 23:21:41
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-11 23:37:16
+ * Last Modified: 2024-03-12 13:37:06
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -12,13 +12,13 @@
  * ------------------------------------
  */
 
-#ifndef D1D_H
-#define D1D_H
+#ifndef F1D_H
+#define F1D_H
 
-union D1D
+union F1D
 {
-    uint64_t i;
-    double d;
+    uint32_t i;
+    float f;
 };
 
 #endif
