@@ -4,7 +4,7 @@
  * Created Date: 2024-03-06 23:41:26
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-11 22:29:52
+ * Last Modified: 2024-03-16 15:38:39
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -35,23 +35,37 @@ static const char *TAG = "i2c-mpu6050";
 #define MPU6050_RESET_BIT 7
 
 /**
- * @brief Read a sequence of bytes from a MPU6050 sensor registers
+ * @brief 向MPU6050寄存器读取一个字节的数据
  */
-static uint8_t MPU6050_register_read(uint8_t reg_addr)
+static uint8_t MPU6050_register_read_byte(uint8_t reg_addr)
 {
     uint8_t data;
     i2c_master_write_read_device(I2C_MASTER_NUM,
-                                        MPU6050_SENSOR_ADDR,
-                                        &reg_addr,
-                                        1,
-                                        &data,
-                                        1,
-                                        I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+                                 MPU6050_SENSOR_ADDR,
+                                 &reg_addr,
+                                 1,
+                                 &data,
+                                 1,
+                                 I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
     return data;
 }
 
 /**
- * @brief Write a byte to a MPU6050 sensor register
+ * @brief 向MPU6050寄存器读取任意字节的数据
+ */
+static esp_err_t MPU6050_register_read_any(uint8_t reg_addr, uint8_t *data_buffer, size_t read_size)
+{
+    return i2c_master_write_read_device(I2C_MASTER_NUM,
+                                 MPU6050_SENSOR_ADDR,
+                                 &reg_addr,
+                                 1,
+                                 data_buffer,
+                                 read_size,
+                                 I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+}
+
+/**
+ * @brief 向MPU6050寄存器写入一个字节的数据
  */
 static esp_err_t MPU6050_register_write_byte(uint8_t reg_addr, uint8_t data)
 {
@@ -63,6 +77,29 @@ static esp_err_t MPU6050_register_write_byte(uint8_t reg_addr, uint8_t data)
                                      write_buf,
                                      sizeof(write_buf),
                                      I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+
+    return ret;
+}
+
+/**
+ * @brief 向MPU6050寄存器写入任意字节的数据
+ */
+static esp_err_t MPU6050_register_write_any(uint8_t reg_addr, uint8_t *data_buffer, size_t write_size)
+{
+    int ret;
+    uint8_t *write_buf = pvPortMalloc(write_size + 1); // 分配足够的空间来存储寄存器地址和数据
+    if (write_buf == NULL)
+    {
+        return ESP_ERR_NO_MEM; // 内存分配失败
+    }
+    write_buf[0] = reg_addr;
+    memcpy(write_buf + 1, data_buffer, write_size); // 将数据复制到缓冲区中
+    ret = i2c_master_write_to_device(I2C_MASTER_NUM,
+                                     MPU6050_SENSOR_ADDR,
+                                     write_buf,
+                                     write_size + 1,
+                                     I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+    vPortFree(write_buf);
 
     return ret;
 }

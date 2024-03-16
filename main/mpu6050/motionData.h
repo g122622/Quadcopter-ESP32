@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-12 13:35:41
+ * Last Modified: 2024-03-16 13:36:40
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -52,6 +52,9 @@ F3D getGyroData()
     return ret;
 }
 
+/**
+ * 打印运动数据。仅供调试使用。
+*/
 void MotionData_Display()
 {
     F3D acc = getAccelData();

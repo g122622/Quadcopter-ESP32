@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 19:55:56
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-11 22:31:44
+ * Last Modified: 2024-03-16 15:31:28
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -52,7 +52,7 @@ void MPU6050_Init()
 {
     ESP_ERROR_CHECK(i2c_master_init());
     /* 读取WHO_AM_I寄存器，确保i2c通信正常*/
-    MPU6050_register_read(MPU6050_WHO_AM_I_REG_ADDR);
+    MPU6050_register_read_byte(MPU6050_WHO_AM_I_REG_ADDR);
     ESP_LOGI(TAG, "MPU6050建立连接成功");
 
     uint8_t flag = ESP_OK;
@@ -64,7 +64,9 @@ void MPU6050_Init()
     if (flag != ESP_OK)
     {
         ESP_LOGE(TAG, "MPU6050发送初始化指令失败");
-    } else {
+    }
+    else
+    {
         ESP_LOGI(TAG, "MPU6050发送初始化指令成功");
     }
 }
@@ -74,8 +76,8 @@ int16_t MPU6050_Get_16bit_Data(uint8_t regAddr)
     uint8_t Data_H, Data_L;
     uint16_t data;
 
-    Data_H = MPU6050_register_read(regAddr);
-    Data_L = MPU6050_register_read(regAddr + 1);
+    Data_H = MPU6050_register_read_byte(regAddr);
+    Data_L = MPU6050_register_read_byte(regAddr + 1);
     data = (Data_H << 8) | Data_L; // 合成数据
     return data;
 }
