@@ -4,13 +4,15 @@
  * Created Date: 2024-03-16 14:05:28
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-16 15:47:45
+ * Last Modified: 2024-03-16 22:29:04
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
  *
  * ------------------------------------
  */
+#ifndef DMP_FIRMWARE_H
+#define DMP_FIRMWARE_H
 
 #include "DMP_Config.h"
 #include "DMP_Memory.h"
@@ -229,11 +231,10 @@ static const unsigned char dmp_memory[DMP_CODE_SIZE] = {
  *  @param[in]  length      DMP镜像大小
  *  @param[in]  firmware    DMP的二进制码
  *  @param[in]  start_addr  Starting address of DMP code memory.
- *  @param[in]  sample_rate Fixed sampling rate used when DMP is enabled.
  *  @return     0 if successful.
  */
 int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
-                      unsigned short start_addr, unsigned short sample_rate)
+                      unsigned short start_addr)
 {
     unsigned short ii;
     unsigned short this_write;
@@ -262,5 +263,7 @@ int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
  */
 int dmp_load_motion_driver_firmware(void)
 {
-    return mpu_load_firmware(DMP_CODE_SIZE, dmp_memory, 0x0400, DMP_SAMPLE_RATE);
+    return mpu_load_firmware(DMP_CODE_SIZE, dmp_memory, 0x0400);
 }
+
+#endif

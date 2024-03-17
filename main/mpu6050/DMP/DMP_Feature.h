@@ -4,18 +4,21 @@
  * Created Date: 2024-03-16 16:05:40
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-16 16:10:21
+ * Last Modified: 2024-03-16 21:02:27
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
- * 
+ *
  * ------------------------------------
  */
+#ifndef DMP_FEATURE_H
+#define DMP_FEATURE_H
 
 #include "./DMP_Global.h"
 #include "./DMP_Config.h"
 #include "./DMP_Memory.h"
 #include "./dmpKey.h"
+#include <string.h>
 
 /**
  *  @brief      Calibrate the gyro data in the DMP.
@@ -41,142 +44,53 @@ int dmp_enable_gyro_cal(unsigned char enable)
 }
 
 /**
- *  @brief      Set tap threshold for a specific axis.
- *  @param[in]  axis    1, 2, and 4 for XYZ accel, respectively.
- *  @param[in]  thresh  Tap threshold, in mg/ms.
+ *  @brief      Generate 3-axis quaternions from the DMP.
+ *  In this driver, the 3-axis and 6-axis DMP quaternion features are mutually
+ *  exclusive.
+ *  @param[in]  enable  1 to enable 3-axis quaternion.
  *  @return     0 if successful.
  */
-int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh)
+int dmp_enable_lp_quat(unsigned char enable)
 {
-    unsigned char tmp[4], accel_fsr;
-    float scaled_thresh;
-    unsigned short dmp_thresh, dmp_thresh_2;
-    if (!(axis & TAP_XYZ) || thresh > 1600)
-        return -1;
+    unsigned char regs[4];
+    if (enable)
+    {
+        regs[0] = DINBC0;
+        regs[1] = DINBC2;
+        regs[2] = DINBC4;
+        regs[3] = DINBC6;
+    }
+    else
+        memset(regs, 0x8B, 4);
 
-    scaled_thresh = (float)thresh / DMP_SAMPLE_RATE;
+    mpu_write_mem(CFG_LP_QUAT, 4, regs);
 
-    mpu_get_accel_fsr(&accel_fsr);
-    switch (accel_fsr)
-    {
-    case 2:
-        dmp_thresh = (unsigned short)(scaled_thresh * 16384);
-        /* dmp_thresh * 0.75 */
-        dmp_thresh_2 = (unsigned short)(scaled_thresh * 12288);
-        break;
-    case 4:
-        dmp_thresh = (unsigned short)(scaled_thresh * 8192);
-        /* dmp_thresh * 0.75 */
-        dmp_thresh_2 = (unsigned short)(scaled_thresh * 6144);
-        break;
-    case 8:
-        dmp_thresh = (unsigned short)(scaled_thresh * 4096);
-        /* dmp_thresh * 0.75 */
-        dmp_thresh_2 = (unsigned short)(scaled_thresh * 3072);
-        break;
-    case 16:
-        dmp_thresh = (unsigned short)(scaled_thresh * 2048);
-        /* dmp_thresh * 0.75 */
-        dmp_thresh_2 = (unsigned short)(scaled_thresh * 1536);
-        break;
-    default:
-        return -1;
-    }
-    tmp[0] = (unsigned char)(dmp_thresh >> 8);
-    tmp[1] = (unsigned char)(dmp_thresh & 0xFF);
-    tmp[2] = (unsigned char)(dmp_thresh_2 >> 8);
-    tmp[3] = (unsigned char)(dmp_thresh_2 & 0xFF);
-
-    if (axis & TAP_X)
-    {
-        if (mpu_write_mem(DMP_TAP_THX, 2, tmp))
-            return -1;
-        if (mpu_write_mem(D_1_36, 2, tmp + 2))
-            return -1;
-    }
-    if (axis & TAP_Y)
-    {
-        if (mpu_write_mem(DMP_TAP_THY, 2, tmp))
-            return -1;
-        if (mpu_write_mem(D_1_40, 2, tmp + 2))
-            return -1;
-    }
-    if (axis & TAP_Z)
-    {
-        if (mpu_write_mem(DMP_TAP_THZ, 2, tmp))
-            return -1;
-        if (mpu_write_mem(D_1_44, 2, tmp + 2))
-            return -1;
-    }
-    return 0;
+    return mpu_reset_fifo();
 }
 
 /**
- *  @brief      Set which axes will register a tap.
- *  @param[in]  axis    1, 2, and 4 for XYZ, respectively.
- *  @return     0 if successful.
+ *  @brief       Generate 6-axis quaternions from the DMP.
+ *  In this driver, the 3-axis and 6-axis DMP quaternion features are mutually
+ *  exclusive.
+ *  @param[in]   enable  1 to enable 6-axis quaternion.
+ *  @return      0 if successful.
  */
-int dmp_set_tap_axes(unsigned char axis)
+int dmp_enable_6x_lp_quat(unsigned char enable)
 {
-    unsigned char tmp = 0;
+    unsigned char regs[4];
+    if (enable)
+    {
+        regs[0] = DINA20;
+        regs[1] = DINA28;
+        regs[2] = DINA30;
+        regs[3] = DINA38;
+    }
+    else
+        memset(regs, 0xA3, 4);
 
-    if (axis & TAP_X)
-        tmp |= 0x30;
-    if (axis & TAP_Y)
-        tmp |= 0x0C;
-    if (axis & TAP_Z)
-        tmp |= 0x03;
-    return mpu_write_mem(D_1_72, 1, &tmp);
-}
+    mpu_write_mem(CFG_8, 4, regs);
 
-/**
- *  @brief      Set minimum number of taps needed for an interrupt.
- *  @param[in]  min_taps    Minimum consecutive taps (1-4).
- *  @return     0 if successful.
- */
-int dmp_set_tap_count(unsigned char min_taps)
-{
-    unsigned char tmp;
-
-    if (min_taps < 1)
-        min_taps = 1;
-    else if (min_taps > 4)
-        min_taps = 4;
-
-    tmp = min_taps - 1;
-    return mpu_write_mem(D_1_79, 1, &tmp);
-}
-
-/**
- *  @brief      Set length between valid taps.
- *  @param[in]  time    Milliseconds between taps.
- *  @return     0 if successful.
- */
-int dmp_set_tap_time(unsigned short time)
-{
-    unsigned short dmp_time;
-    unsigned char tmp[2];
-
-    dmp_time = time / (1000 / DMP_SAMPLE_RATE);
-    tmp[0] = (unsigned char)(dmp_time >> 8);
-    tmp[1] = (unsigned char)(dmp_time & 0xFF);
-    return mpu_write_mem(DMP_TAPW_MIN, 2, tmp);
-}
-
-/**
- *  @brief      Set max time between taps to register as a multi-tap.
- *  @param[in]  time    Max milliseconds between taps.
- *  @return     0 if successful.
- */
-int dmp_set_tap_time_multi(unsigned short time)
-{
-    unsigned short dmp_time;
-    unsigned char tmp[2];
-
-    dmp_time = time / (1000 / DMP_SAMPLE_RATE);
-    tmp[0] = (unsigned char)(dmp_time >> 8);
-    tmp[1] = (unsigned char)(dmp_time & 0xFF);
-    return mpu_write_mem(D_1_218, 2, tmp);
+    return mpu_reset_fifo();
 }
 
 /**
@@ -272,33 +186,10 @@ int dmp_enable_feature(unsigned short mask)
         mpu_write_mem(CFG_GYRO_RAW_DATA, 4, tmp);
     }
 
-    if (mask & DMP_FEATURE_TAP)
-    {
-        /* Enable tap. */
-        tmp[0] = 0xF8;
-        mpu_write_mem(CFG_20, 1, tmp);
-        dmp_set_tap_thresh(TAP_XYZ, 250);
-        dmp_set_tap_axes(TAP_XYZ);
-        dmp_set_tap_count(1);
-        dmp_set_tap_time(100);
-        dmp_set_tap_time_multi(500);
+    tmp[0] = 0xD8;
+    mpu_write_mem(CFG_20, 1, tmp);
 
-        dmp_set_shake_reject_thresh(GYRO_SF, 200);
-        dmp_set_shake_reject_time(40);
-        dmp_set_shake_reject_timeout(10);
-    }
-    else
-    {
-        tmp[0] = 0xD8;
-        mpu_write_mem(CFG_20, 1, tmp);
-    }
-
-    if (mask & DMP_FEATURE_ANDROID_ORIENT)
-    {
-        tmp[0] = 0xD9;
-    }
-    else
-        tmp[0] = 0xD8;
+    tmp[0] = 0xD8;
     mpu_write_mem(CFG_ANDROID_ORIENT_INT, 1, tmp);
 
     if (mask & DMP_FEATURE_LP_QUAT)
@@ -327,3 +218,5 @@ int dmp_enable_feature(unsigned short mask)
 
     return 0;
 }
+
+#endif

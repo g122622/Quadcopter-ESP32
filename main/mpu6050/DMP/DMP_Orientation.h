@@ -4,17 +4,20 @@
  * Created Date: 2024-03-16 15:52:45
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-16 16:03:01
+ * Last Modified: 2024-03-16 21:02:53
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
- * 
+ *
  * ------------------------------------
  */
+#ifndef DMP_ORIENTATION_H
+#define DMP_ORIENTATION_H
 
 #include "dmpKey.h"
 #include "DMP_Memory.h"
 #include "./DMP_Global.h"
+#include <string.h>
 
 static unsigned short inv_row_2_scale(const signed char *row)
 {
@@ -37,7 +40,7 @@ static unsigned short inv_row_2_scale(const signed char *row)
     return b;
 }
 
-static  unsigned short inv_orientation_matrix_to_scalar(
+static unsigned short inv_orientation_matrix_to_scalar(
     const signed char *mtx)
 {
     unsigned short scalar;
@@ -99,5 +102,8 @@ int dmp_set_orientation(unsigned short orient)
         return -1;
     if (mpu_write_mem(FCFG_7, 3, accel_regs))
         return -1;
+    dmp.orient = orient;
     return 0;
 }
+
+#endif

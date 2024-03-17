@@ -4,13 +4,16 @@
  * Created Date: 2024-03-16 16:01:29
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-16 16:07:42
+ * Last Modified: 2024-03-16 21:01:21
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
- * 
+ *
  * ------------------------------------
  */
+
+#ifndef DMP_GLOBAL_H
+#define DMP_GLOBAL_H
 
 #define DMP_FEATURE_TAP (0x001)
 #define DMP_FEATURE_ANDROID_ORIENT (0x002)
@@ -23,7 +26,7 @@
 #define DMP_FEATURE_SEND_CAL_GYRO (0x100)
 #define DMP_FEATURE_SEND_ANY_GYRO (DMP_FEATURE_SEND_RAW_GYRO | \
                                    DMP_FEATURE_SEND_CAL_GYRO)
-                                   
+
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify
  * these values when switching to a new image.
@@ -200,6 +203,73 @@
 #define D_TILT3_H (60)
 #define D_TILT3_L (62)
 
+#define BIT_I2C_MST_VDDIO (0x80)
+#define BIT_FIFO_EN (0x40)
+#define BIT_DMP_EN (0x80)
+#define BIT_FIFO_RST (0x04)
+#define BIT_DMP_RST (0x08)
+#define BIT_FIFO_OVERFLOW (0x10)
+#define BIT_DATA_RDY_EN (0x01)
+#define BIT_DMP_INT_EN (0x02)
+#define BIT_MOT_INT_EN (0x40)
+#define BITS_FSR (0x18)
+#define BITS_LPF (0x07)
+#define BITS_HPF (0x07)
+#define BITS_CLK (0x07)
+#define BIT_FIFO_SIZE_1024 (0x40)
+#define BIT_FIFO_SIZE_2048 (0x80)
+#define BIT_FIFO_SIZE_4096 (0xC0)
+#define BIT_RESET (0x80)
+#define BIT_SLEEP (0x40)
+#define BIT_S0_DELAY_EN (0x01)
+#define BIT_S2_DELAY_EN (0x04)
+#define BITS_SLAVE_LENGTH (0x0F)
+#define BIT_SLAVE_BYTE_SW (0x40)
+#define BIT_SLAVE_GROUP (0x10)
+#define BIT_SLAVE_EN (0x80)
+#define BIT_I2C_READ (0x80)
+#define BITS_I2C_MASTER_DLY (0x1F)
+#define BIT_AUX_IF_EN (0x20)
+#define BIT_ACTL (0x80)
+#define BIT_LATCH_EN (0x20)
+#define BIT_ANY_RD_CLR (0x10)
+#define BIT_BYPASS_EN (0x02)
+#define BITS_WOM_EN (0xC0)
+#define BIT_LPA_CYCLE (0x20)
+#define BIT_STBY_XA (0x20)
+#define BIT_STBY_YA (0x10)
+#define BIT_STBY_ZA (0x08)
+#define BIT_STBY_XG (0x04)
+#define BIT_STBY_YG (0x02)
+#define BIT_STBY_ZG (0x01)
+#define BIT_STBY_XYZA (BIT_STBY_XA | BIT_STBY_YA | BIT_STBY_ZA)
+#define BIT_STBY_XYZG (BIT_STBY_XG | BIT_STBY_YG | BIT_STBY_ZG)
+
+#define INV_X_GYRO (0x40)
+#define INV_Y_GYRO (0x20)
+#define INV_Z_GYRO (0x10)
+#define INV_XYZ_GYRO (INV_X_GYRO | INV_Y_GYRO | INV_Z_GYRO)
+#define INV_XYZ_ACCEL (0x08)
+#define INV_XYZ_COMPASS (0x01)
+
+struct dmp_s
+{
+    void (*tap_cb)(unsigned char count, unsigned char direction);
+    void (*android_orient_cb)(unsigned char orientation);
+    unsigned short orient;
+    unsigned short feature_mask;
+    unsigned short fifo_rate;
+    unsigned char packet_length;
+};
+
+static struct dmp_s dmp = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0};
+
 // 下面的内容是为了方便移植而留下的，会和之前的mpu6050定义的一些宏有重叠
 /* 寄存器映射表 */
 struct gyro_reg_s
@@ -289,3 +359,4 @@ const struct hw_s hw = {
     -521, // temp_offset
     256   // bank_size
 };
+#endif
