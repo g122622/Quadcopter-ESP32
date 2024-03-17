@@ -1,5 +1,7 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S3 |
+| 支持的平台 | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S3 |
 | ----------------- | ----- | -------- | -------- | -------- | -------- | -------- |
+
+![](https://github.com/g122622/Quadcopter-ESP32/blob/image-data/badge.svg)
 
 # BLE Peripheral Example
 
