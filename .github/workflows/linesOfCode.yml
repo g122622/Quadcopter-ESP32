@@ -23,7 +23,7 @@ jobs:
           debug: true
           directory: ./
           badge: ./output/badge.svg
-          ignore: '.github|backups|tutorial|build|*.png|*.svg|*.jpg'
+          ignore: '.github|backups|tutorial|build|*.png|*.svg|*.jpg|sdkconfig.old|sdkconfig.defaults.esp32c6|sdkconfig.defaults.esp32c2|sdkconfig.defaults|sdkconfig'
 
       - name: Print the output
         run: |
