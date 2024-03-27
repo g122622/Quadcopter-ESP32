@@ -24,6 +24,8 @@
 #include "bluetooth/Bleprph_Init.h"
 /* mpu6050 */
 #include "mpu6050/motionData.h"
+/* PWM */
+#include "PWMDriver/motorPWM.h"
 /* 各任务 */
 #include "tasks/motionStateUpdate.h"
 
@@ -41,5 +43,6 @@ void app_main(void)
 {
     Bleprph_Init();
     MotionData_Init();
+    MotorPWMDriver_Init();
     Tasks_Init();
 }
