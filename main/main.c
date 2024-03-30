@@ -26,23 +26,29 @@
 #include "mpu6050/motionData.h"
 /* PWM */
 #include "PWMDriver/motorPWM.h"
+#include "FlightController/motor/motor.h"
 /* 各任务 */
-#include "tasks/motionStateUpdate.h"
+#include "tasks/controllerTickLoop.h"
 
 #define tskHIGH_PRIORITY 10
 
 /* 启动任务 */
 void Tasks_Init()
 {
-    TaskHandle_t motionStateUpdateHandle = NULL;
-    xTaskCreatePinnedToCore(motionStateUpdate, "motionStateUpdate",
-                            4096, NULL, tskHIGH_PRIORITY, motionStateUpdateHandle, 1);
+    TaskHandle_t controllerTickLoopHandle = NULL;
+    xTaskCreatePinnedToCore(controllerTickLoop, "controllerTickLoop",
+                            4096, NULL, tskHIGH_PRIORITY, controllerTickLoopHandle, 1);
 }
 
 void app_main(void)
 {
+    /* 初始化各组件 */
     Bleprph_Init();
     MotionData_Init();
     MotorPWMDriver_Init();
+
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+
+    /* 启动所有任务 */
     Tasks_Init();
 }

@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-21 15:36:36
+ * Last Modified: 2024-03-29 12:30:13
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -58,12 +58,6 @@ F3D getGyroData()
         .z = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
     };
     return ret;
-}
-
-void test(float yaw){
-    static float last_yaw = 0;
-    printf("delta_yaw = %f \n", yaw - last_yaw);
-    last_yaw = yaw;
 }
 
 F3D calcEulerAngle(F3D accel, F3D gyro)

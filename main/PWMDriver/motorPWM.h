@@ -4,7 +4,7 @@
  * Created Date: 2024-03-26 21:11:19
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-27 16:50:30
+ * Last Modified: 2024-03-29 12:46:40
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -104,14 +104,14 @@ void MotorPWMDriver_Init(void)
          .speed_mode = LEDC_MODE,
          .hpoint = 0,
          .timer_sel = LEDC_TIMER_2,
-         .flags.output_invert = 1},
+         .flags.output_invert = 0},
         {.channel = LEDC_HS_CH3_CHANNEL,
          .duty = 0,
          .gpio_num = LEDC_HS_CH3_GPIO,
          .speed_mode = LEDC_MODE,
          .hpoint = 0,
          .timer_sel = LEDC_TIMER_3,
-         .flags.output_invert = 1},
+         .flags.output_invert = 0},
     };
 
     // 对每一个channel应用设置

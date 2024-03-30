@@ -4,7 +4,7 @@
  * Created Date: 2024-03-06 23:41:26
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-21 13:06:37
+ * Last Modified: 2024-03-29 15:18:58
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -26,7 +26,7 @@ static const char *TAG = "i2c-mpu6050";
 #define I2C_MASTER_FREQ_HZ 400000     /*!< I2C主机的时钟频率 */
 #define I2C_MASTER_TX_BUF_DISABLE 0   /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0   /*!< I2C master doesn't need buffer */
-#define I2C_MASTER_TIMEOUT_MS 3000
+#define I2C_MASTER_TIMEOUT_MS 100
 
 #define MPU6050_SENSOR_ADDR 0x68       /*!< MPU6050 的从机地址 */
 #define MPU6050_WHO_AM_I_REG_ADDR 0x75 /*!< "who am I"的寄存器地址 */
