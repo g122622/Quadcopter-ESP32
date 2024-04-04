@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-29 22:59:07
+ * Last Modified: 2024-04-04 19:27:06
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -19,7 +19,7 @@
 #include "freertos/task.h"
 #include "../FlightController/controllerTick.h"
 
-#define INTERVAL_MS (10)
+#define INTERVAL_MS (5)
 
 void controllerTickLoop(void *argument)
 {

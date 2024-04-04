@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-29 12:30:13
+ * Last Modified: 2024-04-01 20:03:12
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -18,6 +18,8 @@
 #include "mpu6050.h"
 #include "../utils/F3D.h"
 #include <math.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #define ACCEL_RANGE 2
 #define GYRO_RANGE 250
@@ -28,10 +30,55 @@
 
 static float q0 = 1, q1 = 0, q2 = 0, q3 = 0;  // 四元数的元素，代表估计方向
 static float exInt = 0, eyInt = 0, ezInt = 0; // 按比例缩小积分误差
+struct
+{
+    int16_t ax;
+    int16_t ay;
+    int16_t az;
+    int16_t gx;
+    int16_t gy;
+    int16_t gz;
+} CalibrationOffset;
 
+F3D getAccelData();
+F3D getGyroData();
+void MotionData_Calibrate();
+
+/**
+ * 初始化之后要等待200ms
+ */
 void MotionData_Init()
 {
     MPU6050_Init();
+    MotionData_Calibrate();
+}
+
+/*
+ * 校准mpu6050的六轴数据
+ */
+void MotionData_Calibrate()
+{
+    // 全部写零
+    CalibrationOffset.ax = 0.0f;
+    CalibrationOffset.ay = 0.0f;
+    CalibrationOffset.az = 0.0f;
+    CalibrationOffset.gx = 0.0f;
+    CalibrationOffset.gy = 0.0f;
+    CalibrationOffset.gz = 0.0f;
+
+    // 等一段时间，等系统稳定后进行校准
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+
+    // 校准
+    float gyroZ_SUM = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+        // F3D accel = getAccelData();
+        F3D gyro = getGyroData();
+        gyroZ_SUM += gyro.z;
+    }
+    CalibrationOffset.gz = gyroZ_SUM / 10.0f;
 }
 
 /**
@@ -47,6 +94,12 @@ F3D getAccelData()
     return ret;
 }
 
+float getAccelMagnitude()
+{
+    F3D accel = getAccelData();
+    return sqrt(accel.x * accel.x + accel.y * accel.y + accel.z * accel.z);
+}
+
 /**
  * 单位：度/s
  */
@@ -55,7 +108,7 @@ F3D getGyroData()
     F3D ret = {
         .x = MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
         .y = MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
-        .z = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
+        .z = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gz,
     };
     return ret;
 }
@@ -111,6 +164,7 @@ F3D calcEulerAngle(F3D accel, F3D gyro)
     float Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3; // rollv
     // float Yaw = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;
     float Yaw = atan2(2 * (q1 * q2 + q0 * q3), 1 - 2 * (q2 * q2 + q3 * q3)) * 57.3;
+    
     F3D ret;
     ret.x = Pitch;
     ret.y = Roll;

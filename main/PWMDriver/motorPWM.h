@@ -4,7 +4,7 @@
  * Created Date: 2024-03-26 21:11:19
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-29 12:46:40
+ * Last Modified: 2024-04-04 15:28:32
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -20,13 +20,9 @@
 // 时钟源和channel配置
 #define LEDC_MODE LEDC_HIGH_SPEED_MODE
 #define LEDC_HS_CH0_GPIO (32)
-#define LEDC_HS_CH0_CHANNEL LEDC_CHANNEL_0
 #define LEDC_HS_CH1_GPIO (33)
-#define LEDC_HS_CH1_CHANNEL LEDC_CHANNEL_1
 #define LEDC_HS_CH2_GPIO (25)
-#define LEDC_HS_CH2_CHANNEL LEDC_CHANNEL_2
 #define LEDC_HS_CH3_GPIO (26)
-#define LEDC_HS_CH3_CHANNEL LEDC_CHANNEL_3
 
 #define LEDC_CH_NUM (4)   // 总的PWM通道数
 #define LEDC_FREQ (10000) // 频率
@@ -35,8 +31,6 @@ ledc_channel_config_t ledc_channels[LEDC_CH_NUM];
 
 void MotorPWMDriver_Init(void)
 {
-    int ch;
-
     // 配置timers
     ledc_timer_config_t ledc_timer0 = {
         .duty_resolution = LEDC_TIMER_12_BIT, // 占空比分辨率
@@ -84,28 +78,28 @@ void MotorPWMDriver_Init(void)
     * 注意：如果不同通道使用一个计时器，那么这些通道的频率和位数是相同的
      */
     ledc_channel_config_t ledc_channels[LEDC_CH_NUM] = {
-        {.channel = LEDC_HS_CH0_CHANNEL,
+        {.channel = LEDC_CHANNEL_0,
          .duty = 0,
          .gpio_num = LEDC_HS_CH0_GPIO,
          .speed_mode = LEDC_MODE,
          .hpoint = 0,
          .timer_sel = LEDC_TIMER_0,
          .flags.output_invert = 0},
-        {.channel = LEDC_HS_CH1_CHANNEL,
+        {.channel = LEDC_CHANNEL_1,
          .duty = 0,
          .gpio_num = LEDC_HS_CH1_GPIO,
          .speed_mode = LEDC_MODE,
          .hpoint = 0,
          .timer_sel = LEDC_TIMER_1,
          .flags.output_invert = 0},
-        {.channel = LEDC_HS_CH2_CHANNEL,
+        {.channel = LEDC_CHANNEL_2,
          .duty = 0,
          .gpio_num = LEDC_HS_CH2_GPIO,
          .speed_mode = LEDC_MODE,
          .hpoint = 0,
          .timer_sel = LEDC_TIMER_2,
          .flags.output_invert = 0},
-        {.channel = LEDC_HS_CH3_CHANNEL,
+        {.channel = LEDC_CHANNEL_3,
          .duty = 0,
          .gpio_num = LEDC_HS_CH3_GPIO,
          .speed_mode = LEDC_MODE,
@@ -115,7 +109,7 @@ void MotorPWMDriver_Init(void)
     };
 
     // 对每一个channel应用设置
-    for (ch = 0; ch < LEDC_CH_NUM; ch++)
+    for (int ch = 0; ch < LEDC_CH_NUM; ch++)
     {
         ledc_channel_config(&ledc_channels[ch]);
     }
@@ -127,8 +121,11 @@ void MotorPWMDriver_Init(void)
  */
 void setDuty(int motorNum, uint32_t duty)
 {
-    ledc_set_duty(ledc_channels[motorNum].speed_mode, ledc_channels[motorNum].channel, duty);
-    ledc_update_duty(ledc_channels[motorNum].speed_mode, ledc_channels[motorNum].channel);
+    // channel参数传入枚举没有用，必须传入int值
+    // ledc_set_duty(ledc_channels[motorNum].speed_mode, ledc_channels[motorNum].channel, duty);
+    // ledc_update_duty(ledc_channels[motorNum].speed_mode, ledc_channels[motorNum].channel);
+    ledc_set_duty(ledc_channels[motorNum].speed_mode, motorNum, duty);
+    ledc_update_duty(ledc_channels[motorNum].speed_mode, motorNum);
 }
 
 #endif

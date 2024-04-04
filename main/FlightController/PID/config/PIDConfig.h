@@ -4,7 +4,7 @@
  * Created Date: 2024-03-26 13:46:46
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-26 13:51:33
+ * Last Modified: 2024-03-31 19:11:24
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -23,5 +23,7 @@ struct PIDConfig
     float I_Weigh;
     float D_Weigh;
 };
+
+typedef struct PIDConfig PIDConfig;
 
 #endif
