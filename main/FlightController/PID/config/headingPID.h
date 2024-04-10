@@ -4,7 +4,7 @@
  * Created Date: 2024-03-26 20:22:24
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-04 19:26:16
+ * Last Modified: 2024-04-05 21:16:59
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -17,15 +17,15 @@
 PIDConfig pitchPIDConfig = {
     .P_Weigh = 1,
     .I_Weigh = 0,
-    .D_Weigh = 5,
+    .D_Weigh = 2.5,
     .lastErr = 0,
     .errIntegral = 0,
 };
 
 PIDConfig rollPIDConfig = {
-    .P_Weigh = 2,
+    .P_Weigh = 1,
     .I_Weigh = 0,
-    .D_Weigh = 10,
+    .D_Weigh = 2.5,
     .lastErr = 0,
     .errIntegral = 0,
 };

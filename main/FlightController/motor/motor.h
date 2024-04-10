@@ -4,7 +4,7 @@
  * Created Date: 2024-03-27 16:27:48
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-04 17:30:02
+ * Last Modified: 2024-04-05 21:58:04
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -18,7 +18,7 @@
 #include "../../PWMDriver/motorPWM.h"
 #include <globalStates/PWMState.h>
 
-#define DUTY_RANGE (4096 / 2)
+#define DUTY_RANGE (4096.0 / 1.5)
 
 void setMotorPWMPercentage(int motorNum, float percentage)
 {
@@ -33,6 +33,14 @@ void setMotorPWMPercentage(int motorNum, float percentage)
 void changeMotorPWMPercentage(int motorNum, float delta)
 {
     setMotorPWMPercentage(motorNum, currentPWMPercentage[motorNum] + delta);
+}
+
+void stopAllMotors()
+{
+    setMotorPWMPercentage(0, 0);
+    setMotorPWMPercentage(1, 0);
+    setMotorPWMPercentage(2, 0);
+    setMotorPWMPercentage(3, 0);
 }
 
 #endif

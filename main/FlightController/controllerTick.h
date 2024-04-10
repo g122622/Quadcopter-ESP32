@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-04 19:29:17
+ * Last Modified: 2024-04-07 22:27:48
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -22,6 +22,8 @@
 #include "./PID/config/throttlePID.h"
 
 #include "FlightController/motor/motor.h"
+
+uint32_t tickCount = 0;
 
 void controllerTick()
 {
@@ -51,10 +53,25 @@ void controllerTick()
     float pitchPID = performPID(&pitchPIDConfig, pitchErr, 5);
 
     /* 将PID输出值转为电机PWM百分比 */
-    float mult = 1.5;
-    float basic = 30;
-    setMotorPWMPercentage(0, mult * (-rollPID + pitchPID) + basic);
-    setMotorPWMPercentage(1, mult * (-rollPID - pitchPID) + basic);
-    setMotorPWMPercentage(2, mult * (+rollPID - pitchPID) + basic);
-    setMotorPWMPercentage(3, mult * (+rollPID + pitchPID) + basic);
+    float mult = 0.5;
+    float basic = 70;
+    if ((tickCount % 100) == 0)
+    {
+        printf("m%d, PWM: %f \t", 1, mult * (-rollPID + pitchPID) + basic);
+        printf("m%d, PWM: %f \t", 2, mult * (-rollPID - pitchPID) + basic);
+        printf("m%d, PWM: %f \t", 3, mult * (+rollPID - pitchPID) + basic);
+        printf("m%d, PWM: %f \n", 4, mult * (+rollPID + pitchPID) + basic);
+    }
+    // if (tickCount == 600)
+    // {
+    //     stopAllMotors();
+    //     esp_restart();
+    // }
+
+    tickCount++;
+    // setMotorPWMPercentage(0, mult * (-rollPID + pitchPID) + basic);
+    // setMotorPWMPercentage(1, mult * (-rollPID - pitchPID) + basic);
+    // setMotorPWMPercentage(2, mult * (+rollPID - pitchPID) + basic);
+    // setMotorPWMPercentage(3, mult * (+rollPID + pitchPID) + basic);
+    
 }

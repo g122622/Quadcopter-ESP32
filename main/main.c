@@ -32,10 +32,11 @@
 
 #define tskHIGH_PRIORITY 10
 
+TaskHandle_t controllerTickLoopHandle = NULL;
+
 /* 启动任务 */
 void Tasks_Init()
 {
-    TaskHandle_t controllerTickLoopHandle = NULL;
     xTaskCreatePinnedToCore(controllerTickLoop, "controllerTickLoop",
                             4096, NULL, tskHIGH_PRIORITY, controllerTickLoopHandle, 1);
 }
@@ -51,6 +52,8 @@ void app_main(void)
     vTaskDelay(7000 / portTICK_PERIOD_MS);
     /* 启动所有任务 */
     Tasks_Init();
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
-    esp_restart();
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    // stopAllMotors();
+    // esp_restart();
 }
