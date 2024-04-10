@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 22:55:56
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-12 13:37:40
+ * Last Modified: 2024-04-10 23:08:29
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -44,7 +44,7 @@
 static const ble_uuid16_t gatt_remoteInfo_svc_uuid = BLE_UUID16_INIT(0x1022);
 
 /* 服务内的characteristic */
-// 基础运动参数
+// 1.基础运动参数
 static uint32_t gatt_remoteInfo_chr_basic_motion_val[6];
 static uint16_t gatt_remoteInfo_chr_basic_motion_val_handle;
 static const ble_uuid16_t gatt_remoteInfo_chr_basic_motion_uuid = BLE_UUID16_INIT(0x1023);
@@ -66,6 +66,7 @@ void calcBasicMotionVal()
     gatt_remoteInfo_chr_basic_motion_val[5] = gyrz.i;
 }
 
+// 访问回调函数
 static int gatt_remoteInfo_svc_access(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg);
 static int gatt_remoteInfo_svc_access(uint16_t conn_handle, uint16_t attr_handle, struct ble_gatt_access_ctxt *ctxt, void *arg)
 {

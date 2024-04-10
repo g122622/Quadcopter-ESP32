@@ -74,10 +74,10 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
         .characteristics = (struct ble_gatt_chr_def[]){
 
             {
-                .uuid = &gatt_remoteControll_chr_uuid.u,
+                .uuid = &gatt_remoteControll_chr_PID_uuid.u,
                 .access_cb = gatt_remoteControll_svc_access,
                 .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_NOTIFY | BLE_GATT_CHR_F_WRITE_NO_RSP,
-                .val_handle = &gatt_remoteControll_chr_val_handle,
+                .val_handle = &gatt_remoteControll_chr_PID_val_handle,
             },
             {
                 0, /* No more characteristics in this service. */
