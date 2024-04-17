@@ -58,7 +58,7 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 .val_handle = &gatt_devinfo_chr_modelNumberStr_val_handle,
             },
             {
-                .uuid = &gatt_devinfo_chr_SWRevStr_uuid,
+                .uuid = &gatt_devinfo_chr_SWRevStr_uuid.u,
                 .access_cb = gatt_devInfo_SWRevStr_access,
                 .flags = BLE_GATT_CHR_F_READ,
                 .val_handle = &gatt_devinfo_chr_SWRevStr_val_handle,

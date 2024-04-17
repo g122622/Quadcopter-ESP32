@@ -4,7 +4,7 @@
  * Created Date: 2024-03-06 23:41:26
  * Author: Guoyi
  * -----
- * Last Modified: 2024-03-29 15:18:58
+ * Last Modified: 2024-04-12 18:51:59
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -56,12 +56,12 @@ static uint8_t MPU6050_register_read_byte(uint8_t reg_addr)
 static esp_err_t MPU6050_register_read_any(uint8_t reg_addr, uint8_t *data_buffer, size_t read_size)
 {
     return i2c_master_write_read_device(I2C_MASTER_NUM,
-                                 MPU6050_SENSOR_ADDR,
-                                 &reg_addr,
-                                 1,
-                                 data_buffer,
-                                 read_size,
-                                 I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+                                        MPU6050_SENSOR_ADDR,
+                                        &reg_addr,
+                                        1,
+                                        data_buffer,
+                                        read_size,
+                                        I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
 }
 
 /**

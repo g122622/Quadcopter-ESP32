@@ -4,7 +4,7 @@
  * Created Date: 2024-03-03 23:03:17
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-10 23:56:09
+ * Last Modified: 2024-04-12 11:04:45
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -21,6 +21,7 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include "services/ans/ble_svc_ans.h"
 #include "../utils/gatt_svr_write.h"
+#include "../../utils/F1D.h"
 
 #include "FlightController/PID/config/gyroPID.h"
 #include "FlightController/PID/config/headingPID.h"
@@ -51,30 +52,30 @@ void convertPIDtoBle()
     rollI.f = rollPIDConfig.I_Weigh;
     rollD.f = rollPIDConfig.D_Weigh;
 
-    gatt_remoteInfo_chr_basic_motion_val[0] = gyroP.i;
-    gatt_remoteInfo_chr_basic_motion_val[1] = gyroI.i;
-    gatt_remoteInfo_chr_basic_motion_val[2] = gyroD.i;
-    gatt_remoteInfo_chr_basic_motion_val[3] = pitchP.i;
-    gatt_remoteInfo_chr_basic_motion_val[4] = pitchI.i;
-    gatt_remoteInfo_chr_basic_motion_val[5] = pitchD.i;
-    gatt_remoteInfo_chr_basic_motion_val[6] = rollP.i;
-    gatt_remoteInfo_chr_basic_motion_val[7] = rollI.i;
-    gatt_remoteInfo_chr_basic_motion_val[8] = rollD.i;
+    gatt_remoteControll_chr_PID_val[0] = gyroP.i;
+    gatt_remoteControll_chr_PID_val[1] = gyroI.i;
+    gatt_remoteControll_chr_PID_val[2] = gyroD.i;
+    gatt_remoteControll_chr_PID_val[3] = pitchP.i;
+    gatt_remoteControll_chr_PID_val[4] = pitchI.i;
+    gatt_remoteControll_chr_PID_val[5] = pitchD.i;
+    gatt_remoteControll_chr_PID_val[6] = rollP.i;
+    gatt_remoteControll_chr_PID_val[7] = rollI.i;
+    gatt_remoteControll_chr_PID_val[8] = rollD.i;
 }
 
 void convertBletoPID()
 {
     union F1D gyroP, gyroI, gyroD, pitchP, pitchI, pitchD, rollP, rollI, rollD;
 
-    gyroP.i = gatt_remoteInfo_chr_basic_motion_val[0];
-    gyroI.i = gatt_remoteInfo_chr_basic_motion_val[1];
-    gyroD.i = gatt_remoteInfo_chr_basic_motion_val[2];
-    pitchP.i = gatt_remoteInfo_chr_basic_motion_val[3];
-    pitchI.i = gatt_remoteInfo_chr_basic_motion_val[4];
-    pitchD.i = gatt_remoteInfo_chr_basic_motion_val[5];
-    rollP.i = gatt_remoteInfo_chr_basic_motion_val[6];
-    rollI.i = gatt_remoteInfo_chr_basic_motion_val[7];
-    rollD.i = gatt_remoteInfo_chr_basic_motion_val[8];
+    gyroP.i = gatt_remoteControll_chr_PID_val[0];
+    gyroI.i = gatt_remoteControll_chr_PID_val[1];
+    gyroD.i = gatt_remoteControll_chr_PID_val[2];
+    pitchP.i = gatt_remoteControll_chr_PID_val[3];
+    pitchI.i = gatt_remoteControll_chr_PID_val[4];
+    pitchD.i = gatt_remoteControll_chr_PID_val[5];
+    rollP.i = gatt_remoteControll_chr_PID_val[6];
+    rollI.i = gatt_remoteControll_chr_PID_val[7];
+    rollD.i = gatt_remoteControll_chr_PID_val[8];
 
     gyroPIDConfig.P_Weigh = gyroP.f;
     gyroPIDConfig.I_Weigh = gyroI.f;

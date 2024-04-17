@@ -45,11 +45,9 @@ void app_main(void)
 {
     /* 初始化各组件 */
     Bleprph_Init();
-    MotionData_Init();
-    vTaskDelay(200 / portTICK_PERIOD_MS);
     MotorPWMDriver_Init();
 
-    vTaskDelay(7000 / portTICK_PERIOD_MS);
+    // vTaskDelay(7000 / portTICK_PERIOD_MS);
     /* 启动所有任务 */
     Tasks_Init();
 
