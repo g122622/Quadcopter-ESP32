@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-12 18:58:00
+ * Last Modified: 2024-04-24 17:36:38
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -21,15 +21,13 @@
 
 #include "mpu6050/motionData.h"
 
-#define INTERVAL_MS (5)
-
 void controllerTickLoop(void *argument)
 {
     MotionData_Init();
     vTaskDelay(200 / portTICK_PERIOD_MS);
     while (1)
     {
-        vTaskDelay(INTERVAL_MS / portTICK_PERIOD_MS);
+        vTaskDelay(5 / portTICK_PERIOD_MS);
         controllerTick();
     }
 }

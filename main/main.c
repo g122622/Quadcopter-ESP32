@@ -29,16 +29,22 @@
 #include "FlightController/motor/motor.h"
 /* 各任务 */
 #include "tasks/controllerTickLoop.h"
+#include "tasks/BMSTaskLoop.h"
 
+// 任务优先级数值越小，任务优先级越低
 #define tskHIGH_PRIORITY 10
+#define tskMEDIUM_PRIORITY 5
 
 TaskHandle_t controllerTickLoopHandle = NULL;
+TaskHandle_t BMSTaskLoopHandle = NULL;
 
 /* 启动任务 */
 void Tasks_Init()
 {
     xTaskCreatePinnedToCore(controllerTickLoop, "controllerTickLoop",
                             4096, NULL, tskHIGH_PRIORITY, controllerTickLoopHandle, 1);
+    xTaskCreatePinnedToCore(BMSTaskLoop, "BMSTaskLoop",
+                            4096, NULL, tskMEDIUM_PRIORITY, BMSTaskLoopHandle, 1);
 }
 
 void app_main(void)
