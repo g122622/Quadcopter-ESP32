@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-27 17:31:24
+ * Last Modified: 2024-04-27 22:26:37
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -34,12 +34,14 @@ void controllerTick(int dt)
     float expectedRoll = 0;
     float expectedAccelMagnitude = 0.01;
 
-    // 全局变量
+    // 更新全局变量
     GyroData = getGyroData();
     AccelData = getAccelData();
     /* 读取传感器姿态数据 */
     float realAccelMagnitude = getAccelMagnitude();
     F3D realRulerAngle = calcEulerAngle(AccelData, GyroData);
+    // 更新全局变量
+    EulerAngleData = realRulerAngle;
 
     /* 期望值和实际值作差 */
     float pitchErr = expectedPitch - realRulerAngle.x;
@@ -54,7 +56,7 @@ void controllerTick(int dt)
 
     /* 将PID输出值转为电机PWM百分比 */
     float mult = 0.5;
-    float basic = 70;
+    float basic = 30;
     if ((tickCount % 100) == 0)
     {
         // printf("m%d, PWM: %f \t", 1, mult * (-rollPID + pitchPID) + basic);
@@ -62,16 +64,16 @@ void controllerTick(int dt)
         // printf("m%d, PWM: %f \t", 3, mult * (+rollPID - pitchPID) + basic);
         // printf("m%d, PWM: %f \n", 4, mult * (+rollPID + pitchPID) + basic);
     }
-    // if (tickCount == 600)
+    // if (tickCount == 300)
     // {
     //     stopAllMotors();
     //     esp_restart();
     // }
-
-    tickCount++;
-    // setMotorPWMPercentage(0, mult * (-rollPID + pitchPID) + basic);
-    // setMotorPWMPercentage(1, mult * (-rollPID - pitchPID) + basic);
-    // setMotorPWMPercentage(2, mult * (+rollPID - pitchPID) + basic);
-    // setMotorPWMPercentage(3, mult * (+rollPID + pitchPID) + basic);
     
+    setMotorPWMPercentage(0, mult * (-rollPID + pitchPID) + basic);
+    setMotorPWMPercentage(1, mult * (-rollPID - pitchPID) + basic);
+    setMotorPWMPercentage(2, mult * (+rollPID - pitchPID) + basic);
+    setMotorPWMPercentage(3, mult * (+rollPID + pitchPID) + basic);
+    
+    tickCount++;
 }

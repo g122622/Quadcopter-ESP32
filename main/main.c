@@ -53,11 +53,10 @@ void app_main(void)
     Bleprph_Init();
     MotorPWMDriver_Init();
 
-    // vTaskDelay(7000 / portTICK_PERIOD_MS);
     /* 启动所有任务 */
     Tasks_Init();
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    // stopAllMotors();
-    // esp_restart();
+    vTaskDelay(18000 / portTICK_PERIOD_MS);
+    stopAllMotors();
+    esp_restart();
 }

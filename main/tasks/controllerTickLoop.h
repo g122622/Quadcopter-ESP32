@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-27 17:06:58
+ * Last Modified: 2024-04-27 21:12:02
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -25,6 +25,7 @@ void controllerTickLoop(void *argument)
 {
     MotionData_Init();
     vTaskDelay(200 / portTICK_PERIOD_MS);
+    vTaskDelay(15000 / portTICK_PERIOD_MS);
     while (1)
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);

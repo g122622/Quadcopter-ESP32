@@ -4,21 +4,7 @@
  * Created Date: 2024-03-11 22:55:56
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-27 13:19:04
- * Modified By: Guoyi
- * -----
- * Copyright (c) 2024 Guoyi Inc.
- *
- * ------------------------------------
- */
-
-/*
- * File: \remoteInfo.h
- * Project: services
- * Created Date: 2024-03-03 23:03:17
- * Author: Guoyi
- * -----
- * Last Modified: 2024-03-03 23:31:21
+ * Last Modified: 2024-04-27 22:09:55
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -46,7 +32,7 @@ static const ble_uuid16_t gatt_remoteInfo_svc_uuid = BLE_UUID16_INIT(0x1022);
 
 /* 服务内的characteristic */
 // 1.基础运动参数
-static uint32_t gatt_remoteInfo_chr_basic_motion_val[6];
+static uint32_t gatt_remoteInfo_chr_basic_motion_val[3 + 3 + 2]; // 3组加速度+3组角速度+2组欧拉角
 static uint16_t gatt_remoteInfo_chr_basic_motion_val_handle;
 static const ble_uuid16_t gatt_remoteInfo_chr_basic_motion_uuid = BLE_UUID16_INIT(0x1023);
 // 2.电池电压
@@ -55,19 +41,23 @@ static const ble_uuid16_t gatt_remoteInfo_chr_battery_voltage_uuid = BLE_UUID16_
 
 void calcBasicMotionVal()
 {
-    union F1D accx, accy, accz, gyrx, gyry, gyrz;
+    union F1D accx, accy, accz, gyrx, gyry, gyrz, pitch, roll;
     accx.f = AccelData.x;
     accy.f = AccelData.y;
     accz.f = AccelData.z;
     gyrx.f = GyroData.x;
     gyry.f = GyroData.y;
     gyrz.f = GyroData.z;
+    pitch.f = EulerAngleData.x;
+    roll.f = EulerAngleData.y;
     gatt_remoteInfo_chr_basic_motion_val[0] = accx.i;
     gatt_remoteInfo_chr_basic_motion_val[1] = accy.i;
     gatt_remoteInfo_chr_basic_motion_val[2] = accz.i;
     gatt_remoteInfo_chr_basic_motion_val[3] = gyrx.i;
     gatt_remoteInfo_chr_basic_motion_val[4] = gyry.i;
     gatt_remoteInfo_chr_basic_motion_val[5] = gyrz.i;
+    gatt_remoteInfo_chr_basic_motion_val[6] = pitch.i;
+    gatt_remoteInfo_chr_basic_motion_val[7] = roll.i;
 }
 
 // 访问回调函数
@@ -87,7 +77,9 @@ static int gatt_remoteInfo_svc_access(uint16_t conn_handle, uint16_t attr_handle
                                 gatt_remoteInfo_chr_basic_motion_val,
                                 sizeof(gatt_remoteInfo_chr_basic_motion_val));
             return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
-        } else if(attr_handle == gatt_remoteInfo_chr_battery_voltage_val_handle){
+        }
+        else if (attr_handle == gatt_remoteInfo_chr_battery_voltage_val_handle)
+        {
             rc = os_mbuf_append(ctxt->om,
                                 &batteryVoltage,
                                 sizeof(batteryVoltage));
