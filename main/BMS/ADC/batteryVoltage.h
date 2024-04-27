@@ -4,7 +4,7 @@
  * Created Date: 2024-04-24 13:47:31
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-24 17:54:26
+ * Last Modified: 2024-04-27 13:02:40
  * Modified By:
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -32,9 +32,9 @@ const static char *BMS_ADC_LOG_TAG = "BMS_ADC";
 
 static int adc_raw[2][10];
 static int voltage[2][10];
-adc_oneshot_unit_handle_t adc1_handle;
-adc_cali_handle_t adc1_cali_handle = NULL;
-bool do_calibration1_chan0 = false;
+static adc_oneshot_unit_handle_t adc1_handle;
+static adc_cali_handle_t adc1_cali_handle = NULL;
+static bool do_calibration1_chan0 = false;
 
 static bool battery_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
 static void battery_adc_calibration_deinit(adc_cali_handle_t handle);
@@ -55,7 +55,7 @@ void BMS_ADC_Init(void)
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, BATTERY_ADC1_CHANNEL, &config));
 
     //-------------ADC1 Calibration Init---------------//
-     do_calibration1_chan0 = battery_adc_calibration_init(ADC_UNIT_1, BATTERY_ADC1_CHANNEL, BATTERY_ADC_ATTEN, &adc1_cali_handle);
+    do_calibration1_chan0 = battery_adc_calibration_init(ADC_UNIT_1, BATTERY_ADC1_CHANNEL, BATTERY_ADC_ATTEN, &adc1_cali_handle);
 }
 
 // 如果读取数据时还未校准，那么返回-1
@@ -63,11 +63,13 @@ int BMS_ADC_ReadBatteryVoltage()
 {
     if (do_calibration1_chan0)
     {
-        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, BATTERY_ADC1_CHANNEL, &adc_raw[0][0]));
-        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_raw[0][0], &voltage[0][0]));
-        return voltage[0][0];
-    } else {
-        // 如果读取数据时还未校准，那么返回-1 
+        adc_oneshot_read(adc1_handle, BATTERY_ADC1_CHANNEL, &adc_raw[0][0]);
+        adc_cali_raw_to_voltage(adc1_cali_handle, adc_raw[0][0], &voltage[0][0]);
+        return voltage[0][0] * 2; // 两个10k电阻分压
+    }
+    else
+    {
+        // 如果读取数据时还未校准，那么返回-1
         return -1;
     }
     return -1;
@@ -76,7 +78,7 @@ int BMS_ADC_ReadBatteryVoltage()
 void BMS_ADC_Deinit()
 {
     // Tear Down
-    ESP_ERROR_CHECK(adc_oneshot_del_unit(adc1_handle));
+    adc_oneshot_del_unit(adc1_handle);
     battery_adc_calibration_deinit(adc1_cali_handle);
 }
 
@@ -125,5 +127,5 @@ battery_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t
 static void battery_adc_calibration_deinit(adc_cali_handle_t handle)
 {
     ESP_LOGI(BMS_ADC_LOG_TAG, "deregister %s calibration scheme", "Line Fitting");
-    ESP_ERROR_CHECK(adc_cali_delete_scheme_line_fitting(handle));
+    adc_cali_delete_scheme_line_fitting(handle);
 }
