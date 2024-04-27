@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-24 17:36:38
+ * Last Modified: 2024-04-27 17:06:58
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -27,8 +27,8 @@ void controllerTickLoop(void *argument)
     vTaskDelay(200 / portTICK_PERIOD_MS);
     while (1)
     {
-        vTaskDelay(5 / portTICK_PERIOD_MS);
-        controllerTick();
+        vTaskDelay(10 / portTICK_PERIOD_MS);
+        controllerTick(10);
     }
 }
 

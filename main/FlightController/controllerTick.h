@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-07 22:27:48
+ * Last Modified: 2024-04-27 17:31:24
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -25,7 +25,7 @@
 
 uint32_t tickCount = 0;
 
-void controllerTick()
+void controllerTick(int dt)
 {
     /* 从全局变量读取用户指令 */
 
@@ -48,19 +48,19 @@ void controllerTick()
     float gyroErr = -GyroData.z;
 
     /* 执行PID算法 */
-    float gyroPID = performPID(&gyroPIDConfig, gyroErr, 5);
-    float rollPID = performPID(&rollPIDConfig, rollErr, 5);
-    float pitchPID = performPID(&pitchPIDConfig, pitchErr, 5);
+    float gyroPID = performPID(&gyroPIDConfig, gyroErr, dt);
+    float rollPID = performPID(&rollPIDConfig, rollErr, dt);
+    float pitchPID = performPID(&pitchPIDConfig, pitchErr, dt);
 
     /* 将PID输出值转为电机PWM百分比 */
     float mult = 0.5;
     float basic = 70;
     if ((tickCount % 100) == 0)
     {
-        printf("m%d, PWM: %f \t", 1, mult * (-rollPID + pitchPID) + basic);
-        printf("m%d, PWM: %f \t", 2, mult * (-rollPID - pitchPID) + basic);
-        printf("m%d, PWM: %f \t", 3, mult * (+rollPID - pitchPID) + basic);
-        printf("m%d, PWM: %f \n", 4, mult * (+rollPID + pitchPID) + basic);
+        // printf("m%d, PWM: %f \t", 1, mult * (-rollPID + pitchPID) + basic);
+        // printf("m%d, PWM: %f \t", 2, mult * (-rollPID - pitchPID) + basic);
+        // printf("m%d, PWM: %f \t", 3, mult * (+rollPID - pitchPID) + basic);
+        // printf("m%d, PWM: %f \n", 4, mult * (+rollPID + pitchPID) + basic);
     }
     // if (tickCount == 600)
     // {
