@@ -20,6 +20,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+/* 状态指示LED */
+#include "LED/StatusLED.h"
 /* 蓝牙协议栈 */
 #include "bluetooth/Bleprph_Init.h"
 /* mpu6050 */
@@ -50,13 +52,10 @@ void Tasks_Init()
 void app_main(void)
 {
     /* 初始化各组件 */
+    StatusLED_Init();
     Bleprph_Init();
     MotorPWMDriver_Init();
 
     /* 启动所有任务 */
     Tasks_Init();
-
-    vTaskDelay(18000 / portTICK_PERIOD_MS);
-    stopAllMotors();
-    esp_restart();
 }

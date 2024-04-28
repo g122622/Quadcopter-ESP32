@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 19:55:56
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-01 12:20:31
+ * Last Modified: 2024-04-27 23:12:23
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -58,7 +58,7 @@ void MPU6050_Init()
     uint8_t flag = ESP_OK;
     flag = MPU6050_register_write_byte(PWR_MGMT_1, 0x00);   // 解除休眠状态
     flag = MPU6050_register_write_byte(SMPLRT_DIV, 0x00);   // 陀螺仪采样率。1KHz
-    flag = MPU6050_register_write_byte(CONFIG, 0x01);       // 启用低通滤波。等级为0x01
+    flag = MPU6050_register_write_byte(CONFIG, 0x06);       // 启用低通滤波。等级为0x05
     flag = MPU6050_register_write_byte(GYRO_CONFIG, 0x0);   // 陀螺仪自检及测量范围。不自检，250deg/s
     flag = MPU6050_register_write_byte(ACCEL_CONFIG, 0x01); // 加速计自检、测量范围及高通滤波频率。不自检，2G，5Hz
     if (flag != ESP_OK)

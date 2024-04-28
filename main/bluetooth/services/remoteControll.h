@@ -4,7 +4,7 @@
  * Created Date: 2024-03-03 23:03:17
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-12 11:04:45
+ * Last Modified: 2024-04-28 19:34:46
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -21,7 +21,9 @@
 #include "services/gatt/ble_svc_gatt.h"
 #include "services/ans/ble_svc_ans.h"
 #include "../utils/gatt_svr_write.h"
-#include "../../utils/F1D.h"
+#include "utils/F1D.h"
+#include "globalStates/controllerState.h"
+#include "globalStates/PWMState.h"
 
 #include "FlightController/PID/config/gyroPID.h"
 #include "FlightController/PID/config/headingPID.h"
@@ -37,6 +39,12 @@ static const ble_uuid16_t gatt_remoteControll_svc_uuid = BLE_UUID16_INIT(0xffe0)
 static uint32_t gatt_remoteControll_chr_PID_val[4 * 3]; // 4个PID配置，每个配置含3个float数据
 static uint16_t gatt_remoteControll_chr_PID_val_handle;
 static const ble_uuid16_t gatt_remoteControll_chr_PID_uuid = BLE_UUID16_INIT(0xffe1);
+// 2.飞行状态
+static uint16_t gatt_remoteControll_chr_flight_state_val_handle;
+static const ble_uuid16_t gatt_remoteControll_chr_flight_state_uuid = BLE_UUID16_INIT(0xffe2);
+// 3.PWM配置
+static uint16_t gatt_remoteControll_chr_PWM_config_val_handle;
+static const ble_uuid16_t gatt_remoteControll_chr_PWM_config_uuid = BLE_UUID16_INIT(0xffe3);
 
 void convertPIDtoBle()
 {
@@ -106,6 +114,26 @@ static int gatt_remoteControll_svc_access(uint16_t conn_handle, uint16_t attr_ha
                                 sizeof(gatt_remoteControll_chr_PID_val));
             return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
         }
+        else if (attr_handle == gatt_remoteControll_chr_flight_state_val_handle)
+        {
+            rc = os_mbuf_append(ctxt->om,
+                                &flightState,
+                                sizeof(flightState));
+            return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+        }
+        else if (attr_handle == gatt_remoteControll_chr_PWM_config_val_handle)
+        {
+            uint32_t data[2]; // 2 * float
+            union F1D basic, mult;
+            basic.f = PWM_Basic;
+            mult.f = PWM_Mult;
+            data[0] = basic.i;
+            data[1] = mult.i;
+            rc = os_mbuf_append(ctxt->om,
+                                data,
+                                sizeof(data));
+            return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+        }
         goto unknown;
 
     // 写操作 Write ctxt->om to the value if the operation is WRITE
@@ -120,6 +148,37 @@ static int gatt_remoteControll_svc_access(uint16_t conn_handle, uint16_t attr_ha
             // have subscribed for notification (or indication) for specified characteristic.
             ble_gatts_chr_updated(attr_handle);
             convertBletoPID();
+            // MODLOG_DFLT(INFO, "Notification/Indication scheduled for all subscribed peers.\n");
+            return rc;
+        }
+        else if (attr_handle == gatt_remoteControll_chr_flight_state_val_handle)
+        {
+            rc = gatt_svr_write(ctxt->om,
+                                sizeof(flightState),
+                                sizeof(flightState),
+                                &flightState, NULL);
+            // Send notification (or indication) to any connected devices that
+            // have subscribed for notification (or indication) for specified characteristic.
+            ble_gatts_chr_updated(attr_handle);
+            // MODLOG_DFLT(INFO, "Notification/Indication scheduled for all subscribed peers.\n");
+            return rc;
+        }
+        else if (attr_handle == gatt_remoteControll_chr_PWM_config_val_handle)
+        {
+            uint32_t data[2]; // 2 * float
+            rc = gatt_svr_write(ctxt->om,
+                                sizeof(data),
+                                sizeof(data),
+                                data, NULL);
+            union F1D basic, mult;
+            basic.i = data[0];
+            mult.i = data[1];
+            PWM_Basic = basic.f;
+            PWM_Mult = mult.f;
+
+            // Send notification (or indication) to any connected devices that
+            // have subscribed for notification (or indication) for specified characteristic.
+            ble_gatts_chr_updated(attr_handle);
             // MODLOG_DFLT(INFO, "Notification/Indication scheduled for all subscribed peers.\n");
             return rc;
         }

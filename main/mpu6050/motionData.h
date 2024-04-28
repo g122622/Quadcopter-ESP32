@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-01 20:03:12
+ * Last Modified: 2024-04-28 15:19:41
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -16,10 +16,11 @@
 #define MOTION_DATA_H
 
 #include "mpu6050.h"
-#include "../utils/F3D.h"
+#include "utils/F3D.h"
 #include <math.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "LED/StatusLED.h"
 
 #define ACCEL_RANGE 2
 #define GYRO_RANGE 250
@@ -69,16 +70,18 @@ void MotionData_Calibrate()
     // 等一段时间，等系统稳定后进行校准
     vTaskDelay(50 / portTICK_PERIOD_MS);
 
-    // 校准
+    // 开始校准
+    enableStatusLED();
     float gyroZ_SUM = 0;
     for (int i = 0; i < 10; i++)
     {
-        vTaskDelay(10 / portTICK_PERIOD_MS);
+        vTaskDelay(30 / portTICK_PERIOD_MS);
         // F3D accel = getAccelData();
         F3D gyro = getGyroData();
         gyroZ_SUM += gyro.z;
     }
     CalibrationOffset.gz = gyroZ_SUM / 10.0f;
+    disableStatusLED();
 }
 
 /**
