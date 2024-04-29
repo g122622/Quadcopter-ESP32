@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-29 18:50:44
+ * Last Modified: 2024-04-29 23:53:44
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -21,9 +21,16 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "LED/StatusLED.h"
+#include "./algorithm/slidingFilter.h"
+
+#define MIN(X,Y) ((X)<(Y)?(X):(Y))
 
 #define ACCEL_RANGE 2
 #define GYRO_RANGE 250
+/* 校准相关配置 */
+// 加速度计包含了太多的噪声。
+// 陀螺仪一般不需要滤波，原始值就很稳定，就是陀螺仪刚开始可能会有零偏，需要我们手动减去这个值。
+#define CALIBRATION_COUNT 30.0f
 /* 欧拉角解算相关的配置 */
 #define Kp 100.0f    // 比例增益支配率收敛到加速度计/磁强计
 #define Ki 0.002f    // 积分增益支配率的陀螺仪偏见的衔接
@@ -72,15 +79,21 @@ void MotionData_Calibrate()
 
     // 开始校准
     enableStatusLED();
+    float gyroX_SUM = 0;
+    float gyroY_SUM = 0;
     float gyroZ_SUM = 0;
-    for (int i = 0; i < 30; i++)
+    for (int i = 0; i < CALIBRATION_COUNT; i++)
     {
         vTaskDelay(30 / portTICK_PERIOD_MS);
         // F3D accel = getAccelData();
         F3D gyro = getGyroData();
+        gyroX_SUM += gyro.x;
+        gyroY_SUM += gyro.y;
         gyroZ_SUM += gyro.z;
     }
-    CalibrationOffset.gz = gyroZ_SUM / 10.0f;
+    CalibrationOffset.gx = gyroX_SUM / CALIBRATION_COUNT;
+    CalibrationOffset.gy = gyroY_SUM / CALIBRATION_COUNT;
+    CalibrationOffset.gz = gyroZ_SUM / CALIBRATION_COUNT;
     disableStatusLED();
 }
 
@@ -89,11 +102,12 @@ void MotionData_Calibrate()
  */
 F3D getAccelData()
 {
-    F3D ret = {
-        .x = MPU6050_Get_16bit_Data(ACCEL_XOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
-        .y = MPU6050_Get_16bit_Data(ACCEL_YOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
-        .z = MPU6050_Get_16bit_Data(ACCEL_ZOUT_H) / (double)(65536 / 2 / ACCEL_RANGE),
+    F3D originalVal = {
+        .x = MPU6050_Get_16bit_Data(ACCEL_XOUT_H) / (double)(65536 / 2 / ACCEL_RANGE) - CalibrationOffset.ax,
+        .y = MPU6050_Get_16bit_Data(ACCEL_YOUT_H) / (double)(65536 / 2 / ACCEL_RANGE) - CalibrationOffset.ay,
+        .z = MPU6050_Get_16bit_Data(ACCEL_ZOUT_H) / (double)(65536 / 2 / ACCEL_RANGE) - CalibrationOffset.az,
     };
+    F3D ret = performSlidingFilter(originalVal);
     return ret;
 }
 
@@ -108,10 +122,11 @@ float getAccelMagnitude()
  */
 F3D getGyroData()
 {
+    // 限制角速度感知范围
     F3D ret = {
-        .x = MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
-        .y = MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE),
-        .z = MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gz,
+        .x = MIN(MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gx, 120),
+        .y = MIN(MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gy, 120),
+        .z = MIN(MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gz, 120),
     };
     return ret;
 }
@@ -167,7 +182,7 @@ F3D calcEulerAngle(F3D accel, F3D gyro)
     float Roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2 * q2 + 1) * 57.3; // rollv
     // float Yaw = atan2(2 * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3) * 57.3;
     float Yaw = atan2(2 * (q1 * q2 + q0 * q3), 1 - 2 * (q2 * q2 + q3 * q3)) * 57.3;
-    
+
     F3D ret;
     ret.x = Pitch;
     ret.y = Roll;

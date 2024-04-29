@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 15:22:56
+ * Last Modified: 2024-04-29 23:03:26
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -27,7 +27,7 @@
 
 uint32_t tickCount = 0;
 
-void controllerTick(int dt)
+void controllerTick(int dt, bool shouldDriveMotors)
 {
     /* 从全局变量读取用户指令 */
 
@@ -72,15 +72,21 @@ void controllerTick(int dt)
     }
 #endif
 #ifndef PRINT_PWM_MODE
-    // if (tickCount * dt >= 3000)
-    // {
-    //     stopAllMotors();
-    //     esp_restart();
-    // }
-    setMotorPWMPercentage(0, PWM1);
-    setMotorPWMPercentage(1, PWM2);
-    setMotorPWMPercentage(2, PWM3);
-    setMotorPWMPercentage(3, PWM4);
+    if (shouldDriveMotors)
+    {
+        if (tickCount % 2) // 每隔两个tick，更新一次电机PWM
+        {
+            setMotorPWMPercentage(0, PWM1);
+            setMotorPWMPercentage(1, PWM2);
+            setMotorPWMPercentage(2, PWM3);
+            setMotorPWMPercentage(3, PWM4);
+        }
+    }
+    else
+    {
+        stopAllMotors();
+    }
+
 #endif
     tickCount++;
 }
