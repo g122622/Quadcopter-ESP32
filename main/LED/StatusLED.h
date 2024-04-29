@@ -4,7 +4,7 @@
  * Created Date: 2024-04-28 15:07:32
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 15:19:25
+ * Last Modified: 2024-04-28 23:00:13
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -19,7 +19,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 
-static gpio_num_t gpio_led_num = GPIO_NUM_32; // 连接LED的GPIO
+static gpio_num_t gpio_led_num = GPIO_NUM_23; // 连接LED的GPIO
 
 void StatusLED_Init()
 {
@@ -35,6 +35,17 @@ void enableStatusLED()
 void disableStatusLED()
 {
     gpio_set_level(gpio_led_num, 0);
+}
+
+void flashStatusLED(int count, int duration)
+{
+    for (int i = 0; i < count; i++)
+    {
+        enableStatusLED();
+        vTaskDelay(duration / portTICK_PERIOD_MS);
+        disableStatusLED();
+        vTaskDelay(duration / portTICK_PERIOD_MS);
+    }
 }
 
 #endif

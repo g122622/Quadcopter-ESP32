@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 15:19:41
+ * Last Modified: 2024-04-29 18:50:44
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -73,7 +73,7 @@ void MotionData_Calibrate()
     // 开始校准
     enableStatusLED();
     float gyroZ_SUM = 0;
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 30; i++)
     {
         vTaskDelay(30 / portTICK_PERIOD_MS);
         // F3D accel = getAccelData();
