@@ -4,7 +4,7 @@
  * Created Date: 2024-03-07 22:51:03
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-29 23:53:44
+ * Last Modified: 2024-04-30 00:31:36
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -23,7 +23,9 @@
 #include "LED/StatusLED.h"
 #include "./algorithm/slidingFilter.h"
 
-#define MIN(X,Y) ((X)<(Y)?(X):(Y))
+#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+#define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
+#define LIMIT(X, Y) (MAX(MIN(X, Y), (-1) * Y)) // 将X的绝对值限制在Y以内
 
 #define ACCEL_RANGE 2
 #define GYRO_RANGE 250
@@ -124,9 +126,9 @@ F3D getGyroData()
 {
     // 限制角速度感知范围
     F3D ret = {
-        .x = MIN(MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gx, 120),
-        .y = MIN(MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gy, 120),
-        .z = MIN(MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gz, 120),
+        .x = LIMIT(MPU6050_Get_16bit_Data(GYRO_XOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gx, 120),
+        .y = LIMIT(MPU6050_Get_16bit_Data(GYRO_YOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gy, 120),
+        .z = LIMIT(MPU6050_Get_16bit_Data(GYRO_ZOUT_H) / (double)(65536 / 2 / GYRO_RANGE) - CalibrationOffset.gz, 120),
     };
     return ret;
 }
