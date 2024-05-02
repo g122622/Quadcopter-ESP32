@@ -4,7 +4,7 @@
  * Created Date: 2024-04-05 21:25:11
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 23:08:52
+ * Last Modified: 2024-05-03 00:03:06
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -16,5 +16,7 @@
 #define CONTROLLER_STATE_H
 
 int __attribute__((weak)) flightState = 0;
+float __attribute__((weak)) PID_I_Limit = 1;
+float __attribute__((weak)) PID_Total_Limit = 5;
 
 #endif

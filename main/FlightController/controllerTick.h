@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-29 23:03:26
+ * Last Modified: 2024-05-03 00:10:13
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -16,6 +16,7 @@
 #include "globalStates/motionState.h"
 #include "globalStates/PWMState.h"
 #include "utils/F3D.h"
+#include "utils/MathUtils.h"
 
 #include "./PID/PerformPID.h"
 #include "./PID/config/gyroPID.h"
@@ -23,6 +24,9 @@
 #include "./PID/config/throttlePID.h"
 
 #include "FlightController/motor/motor.h"
+
+#define BOUNCE_TIME_MS 1000
+
 // #define PRINT_PWM_MODE
 
 uint32_t tickCount = 0;
@@ -36,13 +40,13 @@ void controllerTick(int dt, bool shouldDriveMotors)
     float expectedRoll = 0;
     float expectedAccelMagnitude = 0.01;
 
-    // 更新全局变量
+    // 更新全局变量 1
     GyroData = getGyroData();
     AccelData = getAccelData();
     /* 读取传感器姿态数据 */
     float realAccelMagnitude = getAccelMagnitude();
     F3D realRulerAngle = calcEulerAngle(AccelData, GyroData);
-    // 更新全局变量
+    // 更新全局变量 2
     EulerAngleData = realRulerAngle;
 
     /* 期望值和实际值作差 */
@@ -57,10 +61,14 @@ void controllerTick(int dt, bool shouldDriveMotors)
     float pitchPID = performPID(&pitchPIDConfig, pitchErr, dt);
 
     /* 将PID输出值转为电机PWM百分比 */
-    float PWM1 = PWM_Mult * (-rollPID - pitchPID) + PWM_Basic;
-    float PWM2 = PWM_Mult * (+rollPID - pitchPID) + PWM_Basic;
-    float PWM3 = PWM_Mult * (+rollPID + pitchPID) + PWM_Basic;
-    float PWM4 = PWM_Mult * (-rollPID + pitchPID) + PWM_Basic;
+    float PWM1 = PID_Mult * (-rollPID - pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
+    float PWM2 = PID_Mult * (+rollPID - pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
+    float PWM3 = PID_Mult * (+rollPID + pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
+    float PWM4 = PID_Mult * (-rollPID + pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
+    PWM1 *= PWM1_Mult;
+    PWM2 *= PWM2_Mult;
+    PWM3 *= PWM3_Mult;
+    PWM4 *= PWM4_Mult;
 #ifdef PRINT_PWM_MODE
     if ((tickCount % 100) == 0)
     {
@@ -86,7 +94,6 @@ void controllerTick(int dt, bool shouldDriveMotors)
     {
         stopAllMotors();
     }
-
 #endif
     tickCount++;
 }
