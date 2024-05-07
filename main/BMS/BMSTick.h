@@ -4,7 +4,7 @@
  * Created Date: 2024-04-28 22:52:22
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 23:10:33
+ * Last Modified: 2024-05-08 00:13:36
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -20,13 +20,27 @@
 
 #define BATTERY_VOLTAGE_LOW_THR (3200)
 #define BATTERY_VOLTAGE_EXTREMELY_LOW_THR (3000)
+#define BATTERY_VOLTAGE_DROP_THR (150)
+
+static void fatalStop()
+{
+    flightState = 0;
+    stopAllMotors(); // 多余的一步。在这里是为了万无一失，确保关停所有电机。
+    flashStatusLED(10, 500);
+}
 
 void BMSTick()
 {
+    batteryVoltagePrev = batteryVoltage;
     batteryVoltage = BMS_ADC_ReadBatteryVoltage();
-    if (batteryVoltage != -1 && batteryVoltage < BATTERY_VOLTAGE_EXTREMELY_LOW_THR){
-        flightState = 0;
-        stopAllMotors(); // 多余的一步。在这里是为了万无一失，确保关停所有电机。
-        flashStatusLED(10, 500);
+
+    // 电压墙策略
+    if (batteryVoltage != -1 && batteryVoltage < BATTERY_VOLTAGE_EXTREMELY_LOW_THR)
+    {
+        fatalStop();
+    }
+    if (batteryVoltagePrev > 0 && batteryVoltagePrev - batteryVoltage > BATTERY_VOLTAGE_DROP_THR)
+    {
+        fatalStop();
     }
 }

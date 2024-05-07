@@ -4,7 +4,7 @@
  * Created Date: 2024-04-28 15:07:32
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-28 23:00:13
+ * Last Modified: 2024-05-08 00:04:25
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -20,11 +20,34 @@
 #include "driver/gpio.h"
 
 static gpio_num_t gpio_led_num = GPIO_NUM_23; // 连接LED的GPIO
+static int s_count = 0;
+static int s_duration = 0;
+
+static void flashStatusLEDTask(void *argument)
+{
+    while (1)
+    {
+        xSemaphoreTake(semapHandle, portMAX_DELAY);
+        for (int i = 0; i < *(int *)argument; i++)
+        {
+            enableStatusLED();
+            vTaskDelay(*(int *)(argument + 1) / portTICK_PERIOD_MS);
+            disableStatusLED();
+            vTaskDelay(*(int *)(argument + 1) / portTICK_PERIOD_MS);
+        }
+    }
+}
+static TaskHandle_t flashStatusLEDTaskHandle;
+static SemaphoreHandle_t semapHandle;
 
 void StatusLED_Init()
 {
     // 设置控制LED的GPIO为输出模式
     gpio_set_direction(gpio_led_num, GPIO_MODE_OUTPUT);
+    xTaskCreatePinnedToCore(flashStatusLEDTask, "flashStatusLEDTask",
+                            4096, NULL, 3, flashStatusLEDTaskHandle, 0);
+    // 创建信号量，用于拉起LED频闪任务
+    semapHandle = xSemaphoreCreateBinary();
 }
 
 void enableStatusLED()
@@ -39,13 +62,9 @@ void disableStatusLED()
 
 void flashStatusLED(int count, int duration)
 {
-    for (int i = 0; i < count; i++)
-    {
-        enableStatusLED();
-        vTaskDelay(duration / portTICK_PERIOD_MS);
-        disableStatusLED();
-        vTaskDelay(duration / portTICK_PERIOD_MS);
-    }
+    s_count = count;
+    s_duration = duration;
+    xSemaphoreGive(semapHandle); // 拉起信号量
 }
 
 #endif
