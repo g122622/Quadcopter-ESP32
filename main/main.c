@@ -32,13 +32,16 @@
 /* 各任务 */
 #include "tasks/controllerTickLoop.h"
 #include "tasks/BMSTaskLoop.h"
+#include "tasks/perfMonitorTaskLoop.h"
 
 // 任务优先级数值越小，任务优先级越低
 #define tskHIGH_PRIORITY 10
 #define tskMEDIUM_PRIORITY 5
+#define tskLOW_PRIORITY 3
 
 TaskHandle_t controllerTickLoopHandle = NULL;
 TaskHandle_t BMSTaskLoopHandle = NULL;
+TaskHandle_t perfMonitorTaskLoopHandle = NULL;
 
 /* 启动任务 */
 void Tasks_Init()
@@ -47,10 +50,12 @@ void Tasks_Init()
                             4096, NULL, tskHIGH_PRIORITY, controllerTickLoopHandle, 1);
     xTaskCreatePinnedToCore(BMSTaskLoop, "BMSTaskLoop",
                             4096, NULL, tskMEDIUM_PRIORITY, BMSTaskLoopHandle, 1);
+    // xTaskCreatePinnedToCore(perfMonitorTaskLoop, "perfMonitorTaskLoop",
+    //                         4096, NULL, tskLOW_PRIORITY, perfMonitorTaskLoopHandle, 1);
 }
 
 void app_main(void)
-{
+{  
     /* 初始化各组件 */
     StatusLED_Init();
     Bleprph_Init();

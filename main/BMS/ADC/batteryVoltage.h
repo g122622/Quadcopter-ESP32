@@ -4,7 +4,7 @@
  * Created Date: 2024-04-24 13:47:31
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-27 13:02:40
+ * Last Modified: 2024-05-08 15:27:07
  * Modified By:
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -20,7 +20,7 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
-const static char *BMS_ADC_LOG_TAG = "BMS_ADC";
+static const char *BMS_ADC_LOG_TAG = "BMS_ADC";
 
 /*---------------------------------------------------------------
         ADC General Macros

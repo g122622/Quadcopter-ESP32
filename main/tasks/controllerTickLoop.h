@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-04-29 23:01:23
+ * Last Modified: 2024-05-08 16:33:14
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -26,7 +26,7 @@
 
 void controllerTickLoop(void *argument)
 {
-    vTaskDelay(5000 / portTICK_PERIOD_MS); // 等待5000秒之后，开始初始化mpu6050，并进行校准
+    vTaskDelay(1000 / portTICK_PERIOD_MS); // 等待1秒之后，开始初始化mpu6050，并进行校准
     MotionData_Init();
     vTaskDelay(200 / portTICK_PERIOD_MS);
     while (1)
