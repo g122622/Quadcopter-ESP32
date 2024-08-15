@@ -4,7 +4,7 @@
  * Created Date: 2024-03-11 13:27:21
  * Author: Guoyi
  * -----
- * Last Modified: 2024-05-08 16:33:14
+ * Last Modified: 2024-05-21 18:20:50
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -22,7 +22,7 @@
 
 #include "mpu6050/motionData.h"
 
-#define CONTROLLER_TICK_DURATION 5
+#define CONTROLLER_TICK_DURATION 10
 
 void controllerTickLoop(void *argument)
 {

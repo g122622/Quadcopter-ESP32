@@ -4,7 +4,7 @@
  * Created Date: 2024-03-29 22:57:12
  * Author: Guoyi
  * -----
- * Last Modified: 2024-05-03 00:10:13
+ * Last Modified: 2024-08-15 21:14:20
  * Modified By: Guoyi
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -26,10 +26,10 @@
 #include "FlightController/motor/motor.h"
 
 #define BOUNCE_TIME_MS 1000
-
+      
 // #define PRINT_PWM_MODE
 
-uint32_t tickCount = 0;
+static uint32_t tickCount = 0;
 
 void controllerTick(int dt, bool shouldDriveMotors)
 {
@@ -61,10 +61,10 @@ void controllerTick(int dt, bool shouldDriveMotors)
     float pitchPID = performPID(&pitchPIDConfig, pitchErr, dt);
 
     /* 将PID输出值转为电机PWM百分比 */
-    float PWM1 = PID_Mult * (-rollPID - pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
-    float PWM2 = PID_Mult * (+rollPID - pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
-    float PWM3 = PID_Mult * (+rollPID + pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
-    float PWM4 = PID_Mult * (-rollPID + pitchPID) + MIN(PWM_Basic, PWM_Basic / BOUNCE_TIME_MS * (tickCount * dt));
+    float PWM1 = PWM_Basic + PID_Mult * (-rollPID - pitchPID);
+    float PWM2 = PWM_Basic + PID_Mult * (+rollPID - pitchPID);
+    float PWM3 = PWM_Basic + PID_Mult * (+rollPID + pitchPID);
+    float PWM4 = PWM_Basic + PID_Mult * (-rollPID + pitchPID);
     PWM1 *= PWM1_Mult;
     PWM2 *= PWM2_Mult;
     PWM3 *= PWM3_Mult;
@@ -77,6 +77,8 @@ void controllerTick(int dt, bool shouldDriveMotors)
         printf("m%d, PWM: %f \t", 2, PWM2);
         printf("m%d, PWM: %f \t", 3, PWM3);
         printf("m%d, PWM: %f \n", 4, PWM4);
+        printf("rollPID: %f, pitchPID: %f \n", rollPID, pitchPID);
+        printf("gx: %f, gy: %f \n", GyroData.x, GyroData.y);
     }
 #endif
 #ifndef PRINT_PWM_MODE

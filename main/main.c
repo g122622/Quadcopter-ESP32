@@ -17,6 +17,8 @@
  * under the License.
  */
 
+// #define USE_PERFMON
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -32,10 +34,13 @@
 /* 各任务 */
 #include "tasks/controllerTickLoop.h"
 #include "tasks/BMSTaskLoop.h"
+#ifdef USE_PERFMON
 #include "tasks/perfMonitorTaskLoop.h"
+#endif
 
 // 任务优先级数值越小，任务优先级越低
 #define tskHIGH_PRIORITY 10
+#define tskABOVE_HIGH_PRIORITY 15
 #define tskMEDIUM_PRIORITY 5
 #define tskLOW_PRIORITY 3
 
@@ -49,13 +54,15 @@ void Tasks_Init()
     xTaskCreatePinnedToCore(controllerTickLoop, "controllerTickLoop",
                             4096, NULL, tskHIGH_PRIORITY, controllerTickLoopHandle, 1);
     xTaskCreatePinnedToCore(BMSTaskLoop, "BMSTaskLoop",
-                            4096, NULL, tskMEDIUM_PRIORITY, BMSTaskLoopHandle, 1);
-    // xTaskCreatePinnedToCore(perfMonitorTaskLoop, "perfMonitorTaskLoop",
-    //                         4096, NULL, tskLOW_PRIORITY, perfMonitorTaskLoopHandle, 1);
+                            4096, NULL, tskABOVE_HIGH_PRIORITY, BMSTaskLoopHandle, 1);
+#ifdef USE_PERFMON
+    xTaskCreatePinnedToCore(perfMonitorTaskLoop, "perfMonitorTaskLoop",
+                            4096, NULL, tskLOW_PRIORITY, perfMonitorTaskLoopHandle, 1);
+#endif
 }
 
 void app_main(void)
-{  
+{
     /* 初始化各组件 */
     StatusLED_Init();
     Bleprph_Init();

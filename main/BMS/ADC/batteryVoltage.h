@@ -4,7 +4,7 @@
  * Created Date: 2024-04-24 13:47:31
  * Author: Guoyi
  * -----
- * Last Modified: 2024-05-08 15:27:07
+ * Last Modified: 2024-05-15 22:38:55
  * Modified By:
  * -----
  * Copyright (c) 2024 Guoyi Inc.
@@ -30,8 +30,8 @@ static const char *BMS_ADC_LOG_TAG = "BMS_ADC";
 
 #define BATTERY_ADC_ATTEN ADC_ATTEN_DB_12
 
-static int adc_raw[2][10];
-static int voltage[2][10];
+static int adc_raw;
+static int voltage;
 static adc_oneshot_unit_handle_t adc1_handle;
 static adc_cali_handle_t adc1_cali_handle = NULL;
 static bool do_calibration1_chan0 = false;
@@ -63,9 +63,9 @@ int BMS_ADC_ReadBatteryVoltage()
 {
     if (do_calibration1_chan0)
     {
-        adc_oneshot_read(adc1_handle, BATTERY_ADC1_CHANNEL, &adc_raw[0][0]);
-        adc_cali_raw_to_voltage(adc1_cali_handle, adc_raw[0][0], &voltage[0][0]);
-        return voltage[0][0] * 2; // 两个10k电阻分压
+        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, BATTERY_ADC1_CHANNEL, &adc_raw));
+        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_handle, adc_raw, &voltage));
+        return voltage * 2; // 两个10k电阻分压
     }
     else
     {
